@@ -1,0 +1,28 @@
+body {
+}
+
+.appcontainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.toolcontainer {
+  display: flex;
+  flex-direction: row;
+  height: 150px;
+}
+
+.scrollcontainer {
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  height: 600px;
+}
+
+.scrollpanel {
+  display: flex;
+  padding: 50px;
+  width: 400px;
+  height: 600px;
+  overflow: auto;
+}
