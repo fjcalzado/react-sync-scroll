@@ -1,7 +1,7 @@
-import * as React from 'react';
+import * as React from "react";
 import { ScrollPanel } from "./scrollPanel";
 import { dummyText } from "./content";
-import debounce from 'lodash.debounce';
+import debounce from "lodash.debounce";
 
 interface Props {
   className?: string;
@@ -27,43 +27,52 @@ export class ScrollContainer extends React.Component<Props, {}> {
   }
 
   private handleChildScroll = (callerRef: HTMLElement) => () => {
-    this.childs.filter(child => child.ref != callerRef).forEach(child => {
-      child.pauseScrollFunction();
-      this.doScrollOnChild(child.ref, callerRef.scrollTop)
+    window.requestAnimationFrame(() => {
+      this.childs.filter(child => child.ref !== callerRef).forEach(child => {
+        child.pauseScrollFunction();
+        this.doScrollOnChild(child.ref, this.getRelativeScroll(callerRef));
+      });
     });
   }
 
   private doScrollOnChild = (ref: HTMLElement, value: number) => {
-    ref.scrollTop = value;
+    ref.scrollTop = value * (ref.scrollHeight - ref.clientHeight);
+  }
+
+  private getRelativeScroll = (ref: HTMLElement) => {
+    return ref.scrollTop / (ref.scrollHeight - ref.clientHeight);
   }
 
   private debouncedPauseScrollEvent = (ref) => {
     return debounce(() => {
       ref.onscroll = ref.onscroll ? null : this.handleChildScroll(ref);
-    }, 250, {'leading': true, 'trailing': true});
+    }, 250, {leading: true, trailing: true});
   }
 
-  componentDidMount() {
-    this.childs.forEach(child => child.ref.onscroll = this.handleChildScroll(child.ref));    
+  public componentDidMount() {
+    this.childs.forEach(child => child.ref.onscroll = this.handleChildScroll(child.ref));
   }
 
-  render() {
+  public render() {
     const {className = ""} = this.props;
     return (
       <div className={className}>
         <ScrollPanel
           className="scrollpanel"
-          name="LEFT"
+          content={dummyText + dummyText}
+          registerRef={this.setChild}
+        />
+        <ScrollPanel
+          className="scrollpanel"
           content={dummyText}
           registerRef={this.setChild}
         />
-        <ScrollPanel 
+        <ScrollPanel
           className="scrollpanel"
-          name="RIGHT"
-          content={dummyText}
+          content={dummyText + dummyText + dummyText}
           registerRef={this.setChild}
         />
       </div>
     );
-  } 
+  }
 }
