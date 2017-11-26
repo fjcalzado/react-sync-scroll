@@ -9,7 +9,7 @@ interface Props {
 
 interface ChildElement {
   ref: HTMLElement;
-  pauseScrollFunction: () => void;
+  attachScrollFunction: () => void;
 }
 
 export class ScrollContainer extends React.Component<Props, {}> {
@@ -22,15 +22,16 @@ export class ScrollContainer extends React.Component<Props, {}> {
   private setChild = (ref) => {
     this.childs.push({
       ref,
-      pauseScrollFunction: this.debouncedPauseScrollEvent(ref),
+      attachScrollFunction: this.debouncedAttachScrollEvent(ref),
     });
   }
 
   private handleChildScroll = (callerRef: HTMLElement) => () => {
     window.requestAnimationFrame(() => {
       this.childs.filter(child => child.ref !== callerRef).forEach(child => {
-        child.pauseScrollFunction();
+        child.ref.onscroll = null;
         this.doScrollOnChild(child.ref, this.getRelativeScroll(callerRef));
+        child.attachScrollFunction();
       });
     });
   }
@@ -43,10 +44,10 @@ export class ScrollContainer extends React.Component<Props, {}> {
     return ref.scrollTop / (ref.scrollHeight - ref.clientHeight);
   }
 
-  private debouncedPauseScrollEvent = (ref) => {
+  private debouncedAttachScrollEvent = (ref) => {
     return debounce(() => {
-      ref.onscroll = ref.onscroll ? null : this.handleChildScroll(ref);
-    }, 250, {leading: true, trailing: true});
+      ref.onscroll = this.handleChildScroll(ref);
+    }, 250, {leading: false, trailing: true});
   }
 
   public componentDidMount() {

@@ -14,7 +14,7 @@ export class ScrollPanel extends React.Component<Props, {}> {
   public render() {
     const {className = ""} = this.props;
     return (
-      <div className={className} ref={this.props.registerRef || (() => {}) }>
+      <div className={className} ref={this.props.registerRef || (() => {})}>
         {this.props.content}
       </div>
     );
